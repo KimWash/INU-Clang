@@ -3,14 +3,15 @@
 #include <string.h>
 #include <math.h>
 
-// Todo: 부호체크
-
-
 #define ABS(X) ((X) < 0 ? -(X) : (X))
 #define EPSILON 0.000001
 #define IS_OPERATOR(c) c == '+' || c == '-' || c == '*' || c == '/'
 #define IS_NUMERIC(c) '0' <= c &&c <= '9'
 
+/**
+프로그램에서 사용되는 각종 에러 메세지를 출력하는 함수
+@param message 출력할 메세지
+*/
 void printError(char *message)
 {
   fprintf(stderr, "%s", message);
@@ -29,23 +30,40 @@ typedef struct
   StackNode *top;
 } LinkedStackType;
 
-// 초기화 함수
+/**
+스택 초기화 함수
+@param s 초기화할 스택
+ */
 void init(LinkedStackType *s)
 {
   s->top = NULL;
 }
 
-// 공백 상태 검출 함수
+/**
+스택이 비어있는지 확인하는 함수
+@param s 확인할 스택
+@return 스택이 비어있으면 1, 아니면 0 반환
+*/
 int is_empty(LinkedStackType *s)
 {
   return (s->top == NULL);
 }
-// 포화 상태 검출 함수
+
+/**
+스택이 포화 상태인지 확인하는 함수
+@param s 확인할 스택
+@return 스택이 포화 상태이면 1, 아니면 0 반환
+*/
 int is_full(LinkedStackType *s)
 {
   return 0;
 }
-// 삽입 함수
+
+/**
+스택에 데이터를 삽입하는 함수
+@param s 데이터를 삽입할 스택
+@param item 스택에 삽입할 데이터
+*/
 void push(LinkedStackType *s, element item)
 {
 
@@ -55,11 +73,20 @@ void push(LinkedStackType *s, element item)
   s->top = temp;
 }
 
+/**
+스택의 맨 위에 있는 데이터를 반환하는 함수
+@param s 맨 위에 있는 데이터를 반환할 스택
+@return 스택의 맨 위에 있는 데이터
+*/
 element peek(LinkedStackType *s)
 {
   return s->top->data;
 }
 
+/**
+스택에 저장된 데이터를 출력하는 함수
+@param s 출력할 스택
+*/
 void print_stack(LinkedStackType *s)
 {
   for (StackNode *p = s->top; p != NULL; p = p->link)
@@ -67,7 +94,11 @@ void print_stack(LinkedStackType *s)
   printf("NULL \n");
 }
 
-// 삭제 함수
+/**
+스택에서 데이터를 제거하고 반환하는 함수
+@param s 데이터를 제거할 스택
+@return 제거한 데이터
+*/
 element pop(LinkedStackType *s)
 {
   if (is_empty(s))
@@ -85,71 +116,57 @@ element pop(LinkedStackType *s)
   }
 }
 
+/**
+주어진 문자가 여는 괄호인지 확인하는 함수
+@param c 확인할 문자
+@return 여는 괄호면 1, 아니면 0 반환
+*/
 int isOpeningBracket(char c)
 {
   return c == '(' || c == '[' || c == '{';
 }
+
+/**
+주어진 문자가 닫는 괄호인지 확인하는 함수
+@param c 확인할 문자
+@return 닫는 괄호면 1, 아니면 0 반환
+*/
 int isClosingBracket(char c)
 {
   return c == ')' || c == ']' || c == '}';
 }
 
+
+/**
+주어진 문자가 올바른 닫는 괄호인지 확인하는 함수
+@param open 해당하는 여는 괄호
+@param close 확인할 닫는 괄호
+@return 올바른 닫는 괄호이면 1, 아니면 0 반환
+*/
 int isRightBrackets(char open, char close)
 {
   return (open == '(' && close != ')') ||
          (open == '[' && close != ']') || (open == '{' && close != '}');
 }
 
+/**
+
+주어진 문자가 유효한 문자인지 확인하는 함수
+@param c 확인할 문자
+@return 유효한 문자이면 1, 아니면 0 반환
+*/
 int isAllowedCharacter(char c)
 {
   return IS_OPERATOR(c) || IS_NUMERIC(c) || c == '.' || c == ' ';
 }
 
-double charSeqToDouble(char *chSeq)
-{
-  int pointIndex = -999;
-  int len = strlen(chSeq);
-  double front, back = 0.0;
-  for (int i = 0; i < len; i++)
-  {
-    char ch = chSeq[i];
-    if (!isAllowedCharacter(ch))
-      printError("허용되지 않은 문자가 식에 포함되어 있습니다.");
-    // 점을 만나면
-    if (ch == '.')
-    {
-      pointIndex = i;
-      break;
-    }
-    int intPart = (ch - '0'); // 정수부 선언
-    for (int j = 0; j < i; j++)
-    {                // 10을 i번 곱해 자리수 맞춰주기.
-      intPart *= 10; // 다음 문자 더하기
-    }
-    front += intPart;
-  }
-  // 소수점을 못찾으면 정수부만 반환
-  if (pointIndex == -999)
-  {
-    return front;
-  }
-  for (int i = pointIndex + 1; i < len; i++)
-  {
-    char ch = chSeq[i];
-    if (!isAllowedCharacter(ch))
-      printError("허용되지 않은 문자가 식에 포함되어 있습니다.");
-    int fractional = (ch - '0'); // 정수부 선언
-    for (int j = 0; j < (len - i - 1); j++)
-    { // 10을 i번 곱해 자리수 맞춰주기.
-      fractional *= 10;
-    }
-    back += fractional;
-  }
-  while (back > 1)
-    back /= 10;
-  return front + back;
-}
+/**
 
+문자열에 문자를 추가하는 함수
+@param {char *} dst - 추가할 대상 문자열
+@param {char} c - 추가할 문자
+@returns {void}
+*/
 void append(char *dst, char c)
 {
   char *p = dst;
@@ -159,6 +176,12 @@ void append(char *dst, char c)
   *(++p) = '\0';
 }
 
+/**
+
+스택의 메모리를 해제하고 top 포인터를 NULL로 만드는 함수
+@param {LinkedStackType *} s - 메모리를 해제할 스택
+@returns {void}
+*/
 void cleanStack(LinkedStackType *s)
 {
   StackNode *p = s->top;
@@ -170,6 +193,11 @@ void cleanStack(LinkedStackType *s)
   }
 }
 
+/**
+후위 표기식을 계산하여 결과값을 반환하는 함수
+@param {char *} postfixExp - 계산할 후위 표기식
+@returns {double} - 계산 결과값
+*/
 double eval(char *postfixExp)
 {
   int i = 0;
@@ -196,7 +224,7 @@ double eval(char *postfixExp)
            numStr[j] = '\0';
            value = atof(numStr);
            push(&s, value);
-           i--; // Move the index back by 1 since we advanced it by 1 in the loop
+           i--; // 한칸 뒤로 이도
       }
       
     else
@@ -227,6 +255,11 @@ double eval(char *postfixExp)
   return res;
 }
 
+/**
+연산자 우선순위를 반환하는 함수
+@param {char} op - 우선순위를 찾을 연산자
+@returns {int} - 연산자의 우선순위
+*/
 int getOperationOrder(char op)
 {
   switch (op)
@@ -245,6 +278,12 @@ int getOperationOrder(char op)
   return -999;
 }
 
+/**
+
+문자열을 역순으로 뒤집는 함수
+@param {char *} postfixExp - 뒤집을 문자열
+@returns {char *} - 역순으로 뒤집은 문자열
+*/
 char *reverse_exp(char *postfixExp)
 {
   char *res = (char *)malloc(sizeof(char) * strlen(postfixExp));
@@ -264,6 +303,12 @@ char *reverse_exp(char *postfixExp)
   return res;
 }
 
+/**
+
+중위 표기식을 전위 표기식으로 변환하는 함수
+@param {char *} infixExp - 변환할 중위 표기식
+@returns {char *} - 변환된 전위 표기식
+*/
 char *infix_to_prefix(char *infixExp)
 {
   char ch, e;
@@ -316,6 +361,12 @@ char *infix_to_prefix(char *infixExp)
   return reverse_exp(prefixExp);
 }
 
+/**
+
+중위 표기식을 후위 표기식으로 변환하는 함수
+@param {char *} infixExp - 변환할 중위 표기식
+@returns {char *} - 변환된 후위 표기식
+*/
 char *infix_to_postfix(char *infixExp)
 {
   char *res = (char *)malloc(sizeof(char) * 100);
@@ -373,6 +424,12 @@ char *infix_to_postfix(char *infixExp)
   return res;
 }
 
+/**
+
+주어진 수식이 올바른지 검증하는 함수
+@param {char *} exp - 검증할 수식 문자열
+@returns {number} - 검증 결과 (1: 올바른 수식, 0: 잘못된 수식)
+*/
 int isValidExp(char *exp)
 {
   LinkedStackType s;
@@ -421,6 +478,12 @@ int isValidExp(char *exp)
   return 1;
 }
 
+
+/**
+주어진 문자열에서 공백을 제거하는 함수
+@param {char *} exp - 공백을 제거할 문자열
+@returns {char *} - 공백이 제거된 문자열
+*/
 char *trim(char *exp) // 공백제거
 {
   char *res = (char *)malloc(sizeof(char) * 100);
@@ -488,7 +551,7 @@ void test(){
 
 void user() {
     char *infixExp = malloc(sizeof(char) * 100);
-    printf("중위 표기식을 입력하세요: ");
+    printf("중위식을 입력하세요: ");
     scanf("%[^\n]s", infixExp);       // Regex로 개행문자를 제외하고 읽어오기
     char *trimedExp = trim(infixExp); // 공백 제거해 깨끗한 문자열로 만들기
     if (!isValidExp(trimedExp))
@@ -497,14 +560,14 @@ void user() {
       exit(1);
     }
 
-    printf("\n전위 표기식: %s\n", infix_to_prefix(trimedExp));
+    printf("\n전위식: %s\n", infix_to_prefix(trimedExp));
     char *postfixExp = infix_to_postfix(trimedExp);
-    printf("후위 표기식: %s\n", postfixExp);
-    printf("%f\n", eval(postfixExp));
+    printf("후위식: %s\n", postfixExp);
+    printf("계산결과: %f\n", eval(postfixExp));
 }
 
 int main()
 {
-//    user();
-    test();
+    user();
+//    test();
 }

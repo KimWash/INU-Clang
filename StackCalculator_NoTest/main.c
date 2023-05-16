@@ -1,3 +1,5 @@
+// 202201543 최경민
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -480,7 +482,6 @@ int isValidExp(char *exp)
 
 
 /**
-
 주어진 문자열에서 공백을 제거하는 함수
 @param {char *} exp - 공백을 제거할 문자열
 @returns {char *} - 공백이 제거된 문자열
@@ -496,79 +497,22 @@ char *trim(char *exp) // 공백제거
   return res;
 }
 
-
-
-typedef struct  {
-    char infixExp[100];
-    char prefixExp[100];
-    char postfixExp[100];
-    double result;
-}TestCase;
-
-int run(TestCase testCase) {
-    char *trimedExp = trim(testCase.infixExp); // 공백 제거해 깨끗한 문자열로 만들기
-    if (!isValidExp(trimedExp))
-    {
-      printf("올바르지 않은 식입니다.");
-      exit(1);
-    }
-  
-    char *prefixExp = infix_to_prefix(trimedExp);
-    printf("\n전위 표기식: %s\n", prefixExp);
-    char *postfixExp = infix_to_postfix(trimedExp);
-    printf("후위 표기식: %s\n", postfixExp);
-    double res = eval(postfixExp);
-    printf("%f\n", res);
+int main() {
     
+        char *infixExp = malloc(sizeof(char) * 100);
+        printf("중위식을 입력하세요: ");
+        scanf("%[^\n]s", infixExp);       // Regex로 개행문자를 제외하고 읽어오기
+        char *trimedExp = trim(infixExp); // 공백 제거해 깨끗한 문자열로 만들기
+        if (!isValidExp(trimedExp))
+        {
+          printf("올바르지 않은 식입니다.");
+          exit(1);
+        }
+
+        printf("\n전위식: %s\n", infix_to_prefix(trimedExp));
+        char *postfixExp = infix_to_postfix(trimedExp);
+        printf("후위식: %s\n", postfixExp);
+        printf("계산결과: %f\n", eval(postfixExp));
     
-    float fval = res;
 
-
-
-    if (strcmp(trim(prefixExp), trim(testCase.prefixExp))) return 0;
-    if (strcmp(trim(postfixExp), trim(testCase.postfixExp))) return 0;
-    if (ABS(fval - testCase.result) >= EPSILON) return 0;
-    return 1;
-}
-
-
-void test(){
-    TestCase case1 = {"3 + 7 * 2 - 4 / 2 + 5 - 9 * 2 + 8", "+ - + - + 3 * 7 2 / 4 2 5 * 9 2 8", "3 7 2 * + 4 2 / - 5 + 9 2 * - 8 +", 10};
-    TestCase case2 = {"(6 + 2) * 5 - 12 / 4 + (9 - 3) * 2 - 8 / 2", "- + - * + 6 2 5 / 12 4 * - 9 3 2 / 8 2", "6 2 + 5 * 12 4 / - 9 3 - 2 * + 8 2 / -", 45};
-    TestCase case3 = {"(9 - (5 + 3) * 2) + ((4 * 3) - (2 * 5)) / (3 - 1)", "+ - 9 * + 5 3 2 / - * 4 3 * 2 5 - 3 1", "9 5 3 + 2 * - 4 3 * 2 5 * - 3 1 - / +", -6};
-    TestCase case4 = {"((2.5 + 1.5) * 3 - 4) / 2.2 + 1.8", "+/-*+2.5 1.5 3 4 2.2 1.8", "2.5 1.5+ 3 * 4- 2.2 / 1.8+", 5.436364};
-    TestCase case5 = {"6 - 2 * (4.5 - 1.5) / (3 + 1)", "-6 /* 2 -4.5 1.5 +3 1", "6 2 4.5 1.5- * 3 1+/-", 4.5};
-    TestCase case6 = {"(1.2 + 2.3) * ((4.5 - 2) / 2) - 3.4", "-*+1.2 2.3 /-4.5 2 2 3.4", "1.2 2.3+ 4.5 2- 2/ * 3.4-", 0.975};
- 
-    
-    printf("case 1: %s\n", run(case1) ? "성공" : "실패");
-    printf("case 2: %s\n", run(case2) ? "성공" : "실패");
-    printf("case 3: %s\n", run(case3) ? "성공" : "실패");
-    printf("case 4: %s\n", run(case4) ? "성공" : "실패");
-    printf("case 5: %s\n", run(case5) ? "성공" : "실패");
-    printf("case 6: %s\n", run(case6) ? "성공" : "실패");
-    
-}
-
-void user() {
-    char *infixExp = malloc(sizeof(char) * 100);
-    printf("중위식을 입력하세요: ");
-    scanf("%[^\n]s", infixExp);       // Regex로 개행문자를 제외하고 읽어오기
-    char *trimedExp = trim(infixExp); // 공백 제거해 깨끗한 문자열로 만들기
-    if (!isValidExp(trimedExp))
-    {
-      printf("올바르지 않은 식입니다.");
-      exit(1);
-    }
-
-    printf("\n전위식: %s\n", infix_to_prefix(trimedExp));
-    char *postfixExp = infix_to_postfix(trimedExp);
-    printf("후위식: %s\n", postfixExp);
-    printf("계산결과: %f\n", eval(postfixExp));
-}
-
-int main()
-{
-    user();
-//    test();
 }
